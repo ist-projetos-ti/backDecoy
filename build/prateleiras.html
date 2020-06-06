@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <title>Página das Prateleiras</title>
+    <meta charset="utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Prateleiras Inteligentes</h1>
+    </header>
+    <div id="content">
+      <h2>
+        Confira na tabela abaixo a coleta de dados das gôndolas em tempo real.
+        Para atualizar, clique no botão.
+      </h2>
+      <table>
+        <tr>
+          <th>Divisória</th>
+          <th>Nome</th>
+          <th>Distância (cm)</th>
+          <th>Quantidade</th>
+          <th>Ocupação</th>
+          <th>Preço (R$)</th>
+          <th>Alterar preço</th>
+        </tr>
+
+        <tr>
+          <th>1</th>
+          <td id="01">-</td>
+          <td id="1">-</td>
+          <td id="2">-</td>
+          <td id="4"><div id="pb1"><div id = "pb2"></div></div><div id="numero1">-</div></td>
+          <td id="5">-</td>
+          <td id="6">
+            <input
+              id="alteraPreco1"
+              type="text"
+              name="preço"
+              size="10"
+              maxlength="7"
+              placeholder="Insira o valor:"
+              onblur="">
+            </input>
+            <button id="atualizaPreco1" type="submit" value="Enviar">
+              Alterar
+            </button>
+          </td>
+        </tr>
+
+        <tr>
+          <th>2</th>
+          <td id="02">-</td>
+          <td id="8">-</td>
+          <td id="9">-</td>
+          <td id="11"><div id="pb3"><div id = "pb4"></div></div><div id="numero2">-</div></td>
+          <td id="12">-</td>
+          <td id="13">
+          <input
+              id="alteraPreco2"
+              type="text"
+              name="preço"
+              size="10"
+              maxlength="7"
+              placeholder="Insira o valor:"
+              onblur="">
+          </input>
+            <button id="atualizaPreco2" type="submit" value="Enviar" ()>
+              Alterar
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+
+  <script>
+    $(document).ready(function() {
+      setInterval(() => {
+        $.ajax({
+          url: "http://192.168.0.103:333/infoSensores",
+          type: "GET"
+        }).done(function(data) {
+          //   console.log(data);
+          //   console.log(data[1][0].distancia);
+          $("#01").text(data[2][0].nome);
+          $("#1").text(data[0][0].distancia);
+          $("#2").text(data[0][0].quantidade);
+          $("#5").text(data[2][0].preco);
+          $("#02").text(data[3][0].nome);
+          $("#8").text(data[1][0].distancia);
+          $("#9").text(data[1][0].quantidade);
+          $("#12").text(data[3][0].preco);
+
+          $("#numero1").text(data[0][0].ocupacao + " %");
+          $("#numero2").text(data[1][0].ocupacao + " %");
+
+          $("#pb2").animate({
+            width: (100 * data[0][0].ocupacao) / 100
+          });
+          $("#pb4").animate({
+            width: (100 * data[1][0].ocupacao) / 100
+          });
+
+          if (data[0][0].ocupacao > 70)
+            $("#pb2").css("background-color", "#00FF00");
+          else {
+            if (data[0][0].ocupacao > 35)
+              $("#pb2").css("background-color", "	#FFFF00");
+            else $("#pb2").css("background-color", "#FF0000");
+          }
+          if (data[1][0].ocupacao > 70)
+            $("#pb4").css("background-color", "#00FF00");
+          else {
+            if (data[1][0].ocupacao > 35)
+              $("#pb4").css("background-color", "	#FFFF00");
+            else $("#pb4").css("background-color", "#FF0000");
+          }
+        });
+      }, 2000);
+
+      $("#atualizaPreco1").click(() => {
+        var obj = new Object();
+        obj.preco = $("#alteraPreco1").val();
+        console.log(obj);
+        $.ajax({
+          url: "http://192.168.0.103:333/save2/1",
+          method: "POST",
+          data: obj
+        })
+          .done(function(response) {
+            alert("Alterado");
+            $("#alteraPreco1").val("");
+          })
+          .fail(function(jqXHR, textStatus, c) {
+            console.log("Erro no envio==>", jqXHR, textStatus, c);
+          });
+      });
+
+      $("#atualizaPreco2").click(() => {
+        var obj = new Object();
+        obj.preco = $("#alteraPreco2").val();
+        console.log(obj);
+        $.ajax({
+          url: "http://192.168.0.103:333/save2/2",
+          method: "POST",
+          data: obj
+        })
+          .done(function(response) {
+            alert("Alterado");
+            $("#alteraPreco2").val("");
+          })
+          .fail(function(jqXHR, textStatus, c) {
+            console.log("Erro no envio==>", jqXHR, textStatus, c);
+          });
+      });
+    });
+  </script>
+</html>
